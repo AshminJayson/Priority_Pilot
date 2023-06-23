@@ -3,6 +3,7 @@
 import {
     Button,
     Card,
+    CardBody,
     CardHeader,
     Flex,
     Heading,
@@ -18,21 +19,63 @@ import {
     Text,
     Textarea,
     useDisclosure,
+    useToast,
 } from "@chakra-ui/react";
 import { useAuth, useTasks } from "./providers";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
+import { TaskLine } from "./components";
 
 function MatrixCard({ bg, type }: { bg: string; type: string }) {
+    const { tasks } = useTasks();
+
+    const ruleCheck = (urgency: number, importance: number, type: string) => {
+        switch (type) {
+            case "DO":
+                if (urgency > 0 && importance > 0) return true;
+                break;
+            case "SCHEDULE":
+                if (urgency == 0 && importance > 0) return true;
+                break;
+            case "DELEGATE":
+                if (urgency > 0 && importance == 0) return true;
+                break;
+            case "DELETE":
+                if (urgency == 0 && importance == 0) return true;
+                break;
+        }
+
+        console.log(urgency, importance, type);
+        return false;
+    };
     return (
         <Card height="250px" backgroundColor={bg}>
-            <CardHeader>
+            <CardHeader paddingBottom={0}>
                 <Heading size="md">{type}</Heading>
             </CardHeader>
+            <CardBody
+                overflow="scroll"
+                sx={{
+                    "::-webkit-scrollbar": {
+                        display: "none",
+                    },
+                    "&": {
+                        msOverflowStyle: "none",
+                        scrollbarWidth: "none",
+                    },
+                }}
+            >
+                {tasks.map((task, index) => {
+                    if (ruleCheck(task.urgency, task.importance, type))
+                        return <TaskLine key={index} task={task} />;
+                })}
+            </CardBody>
         </Card>
     );
 }
 
 function AddTask() {
+    const toast = useToast();
+
     const [newTask, setNewTask] = useState<Task>({
         title: "",
         description: "",
@@ -40,9 +83,9 @@ function AddTask() {
         importance: 0,
         urgency: 0,
     });
-
     const { addTask } = useTasks();
 
+    const [loading, setLoading] = useState<boolean>(false);
     const handleChange = (
         event:
             | ChangeEvent<HTMLInputElement>
@@ -50,6 +93,26 @@ function AddTask() {
             | ChangeEvent<HTMLSelectElement>
     ) => {
         setNewTask({ ...newTask, [event.target.name]: event.target.value! });
+    };
+
+    const addNewTask = () => {
+        setLoading(true);
+        addTask(newTask).then((res) => {
+            if (res) {
+                toast({
+                    title: "Task added successfully",
+                    status: "success",
+                    duration: 1000,
+                });
+            } else {
+                toast({
+                    title: "Task addition failed",
+                    status: "error",
+                    duration: 1000,
+                });
+            }
+            setLoading(false);
+        });
     };
 
     return (
@@ -65,23 +128,34 @@ function AddTask() {
                 placeholder="Description"
             ></Textarea>
             <Input
+                name="dueDate"
                 placeholder="Select Date and Time"
                 type="datetime-local"
                 onChange={handleChange}
             ></Input>
-            <Select onChange={handleChange} placeholder="Select Importance">
+            <Select
+                name="importance"
+                onChange={handleChange}
+                placeholder="Select Importance"
+            >
                 <option value={3}>Important : High</option>
                 <option value={2}>Important : Medium</option>
                 <option value={1}>Important : Low</option>
                 <option value={0}>Not Important</option>
             </Select>
-            <Select onChange={handleChange} placeholder="Select Urgency">
+            <Select
+                name="urgency"
+                onChange={handleChange}
+                placeholder="Select Urgency"
+            >
                 <option value={3}>Urgent : High</option>
                 <option value={2}>Urgent : Medium</option>
                 <option value={1}>Urgent : Low</option>
                 <option value={0}>Not Urgent</option>
             </Select>
-            <Button onClick={() => addTask(newTask)}>Add Task</Button>
+            <Button isLoading={loading} onClick={addNewTask}>
+                Add Task
+            </Button>
         </Flex>
     );
 }
@@ -89,6 +163,11 @@ function AddTask() {
 export default function Home() {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { user, logIn } = useAuth();
+    const { retrieveTasks } = useTasks();
+
+    useEffect(() => {
+        retrieveTasks();
+    }, [user]);
     return (
         <Flex
             direction="column"
