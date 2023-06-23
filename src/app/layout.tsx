@@ -1,7 +1,7 @@
 "use client";
 
 import { Orbitron } from "next/font/google";
-import { AuthProvider, ChakraUIProvider } from "./providers";
+import { AuthProvider, ChakraUIProvider, TasksProvider } from "./providers";
 import { Navbar } from "./components";
 import { Flex } from "@chakra-ui/react";
 
@@ -37,7 +37,7 @@ export default function RootLayout({
                             }}
                         >
                             <Navbar />
-                            {children}
+                            <TasksProvider>{children}</TasksProvider>
                         </Flex>
                     </AuthProvider>
                 </ChakraUIProvider>

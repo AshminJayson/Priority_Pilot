@@ -13,11 +13,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
-        firebaseAuth.onAuthStateChanged((user) => {
-            if (user) {
+        firebaseAuth.onAuthStateChanged((savedUser) => {
+            if (savedUser) {
                 setUser({
-                    userName: user.displayName!,
-                    email: user.email!,
+                    userName: savedUser.displayName!,
+                    email: savedUser.email!,
+                    uid: savedUser.uid!,
                 });
             }
         });
@@ -30,6 +31,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     setUser({
                         userName: res.user.displayName!,
                         email: res.user.email!,
+                        uid: res.user.uid!,
                     });
                 }
             );
