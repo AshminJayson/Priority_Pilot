@@ -2,7 +2,15 @@ import { useContext, useEffect, useState } from "react";
 import { TasksContext } from "../contexts";
 import { firestore } from "../dependencies";
 import { useAuth } from "./authprovider";
-import { getDocs, collection, addDoc, DocumentData } from "firebase/firestore";
+import {
+    getDocs,
+    collection,
+    addDoc,
+    DocumentData,
+    where,
+    query,
+    deleteDoc,
+} from "firebase/firestore";
 
 export function TasksProvider({ children }: { children: React.ReactNode }) {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -13,13 +21,27 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
         if (!user) return Promise.resolve(false);
 
         const userCollection = collection(firestore, user.uid);
-        console.log(newTask);
         const docRef = await addDoc(userCollection, newTask);
         setTasks((tasks: Task[]) => [...tasks, newTask]);
         return Promise.resolve(true);
     };
 
-    const deleteTask = async () => {};
+    const deleteTask = async (taskId: number) => {
+        if (!user) return Promise.resolve(false);
+
+        const userCollection = collection(firestore, user.uid);
+        const deleteQuery = query(
+            userCollection,
+            where("taskId", "==", taskId)
+        );
+        const docRef = await getDocs(deleteQuery);
+        docRef.forEach((doc) => deleteDoc(doc.ref));
+        setTasks((tasks: Task[]) =>
+            tasks.filter((task) => task.taskId !== taskId)
+        );
+
+        return Promise.resolve(true);
+    };
     const updateTask = async () => {};
     const retrieveTasks = async () => {
         setTasks([]);
@@ -28,7 +50,6 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
         const querySnapshot = await getDocs(userCollection);
         querySnapshot.docs.map((doc: DocumentData) => {
             setTasks((tasks: Task[]) => [...tasks, doc.data()]);
-            console.log(tasks);
         });
     };
 
