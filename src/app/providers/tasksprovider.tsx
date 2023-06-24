@@ -10,6 +10,7 @@ import {
     where,
     query,
     deleteDoc,
+    updateDoc,
 } from "firebase/firestore";
 
 export function TasksProvider({ children }: { children: React.ReactNode }) {
@@ -24,6 +25,17 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
         const docRef = await addDoc(userCollection, newTask);
         setTasks((tasks: Task[]) => [...tasks, newTask]);
         return Promise.resolve(true);
+    };
+
+    const retrieveTasks = async () => {
+        setTasks([]);
+        if (!user) return;
+        const userCollection = collection(firestore, user.uid);
+        const querySnapshot = await getDocs(userCollection);
+        querySnapshot.docs.map((doc: DocumentData) => {
+            console.log(doc.data());
+            setTasks((tasks: Task[]) => [...tasks, doc.data()]);
+        });
     };
 
     const deleteTask = async (taskId: number) => {
@@ -42,19 +54,50 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
 
         return Promise.resolve(true);
     };
-    const updateTask = async () => {};
-    const retrieveTasks = async () => {
-        setTasks([]);
-        if (!user) return;
+
+    const markTaskCompleted = async (taskId: number) => {
+        if (!user) return Promise.resolve(false);
+
         const userCollection = collection(firestore, user.uid);
-        const querySnapshot = await getDocs(userCollection);
-        querySnapshot.docs.map((doc: DocumentData) => {
-            setTasks((tasks: Task[]) => [...tasks, doc.data()]);
+        const updateQuery = query(
+            userCollection,
+            where("taskId", "==", taskId)
+        );
+
+        const docRef = await getDocs(updateQuery);
+        docRef.forEach((doc) => {
+            updateDoc(doc.ref, { isComplete: "true" });
         });
+
+        setTasks((tasks: Task[]) =>
+            tasks.map((task) =>
+                task.taskId === taskId ? { ...task, isComplete: "true" } : task
+            )
+        );
+
+        return Promise.resolve(true);
     };
 
-    const markTaskCompleted = async () => {};
+    const updateTask = async (taskId: number, updatedTask: Task) => {
+        if (!user) return Promise.resolve(false);
 
+        const userCollection = collection(firestore, user.uid);
+        const updateQuery = query(
+            userCollection,
+            where("taskId", "==", taskId)
+        );
+
+        const docRef = await getDocs(updateQuery);
+        docRef.forEach((doc) => {
+            updateDoc(doc.ref, { ...updatedTask });
+        });
+
+        setTasks((tasks: Task[]) =>
+            tasks.map((task) => (task.taskId === taskId ? updatedTask : task))
+        );
+
+        return Promise.resolve(true);
+    };
     return (
         <TasksContext.Provider
             value={{

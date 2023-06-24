@@ -5,4 +5,5 @@ interface Task {
     dueDate: Date;
     importance: number;
     urgency: number;
+    isComplete: string;
 }

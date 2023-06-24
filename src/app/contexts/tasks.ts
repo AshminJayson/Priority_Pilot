@@ -4,7 +4,7 @@ interface TasksContextProps {
     tasks: Array<Task>;
     addTask: (newTask: Task) => Promise<boolean>;
     deleteTask: (taskId: number) => void;
-    updateTask: (taskId: number) => void;
+    updateTask: (taskId: number, updatedTask: Task) => Promise<boolean>;
     markTaskCompleted: (taskId: number) => void;
     retrieveTasks: () => void;
 }
@@ -17,7 +17,7 @@ export const TasksContext = createContext<TasksContextProps>({
     deleteTask: function (taskId: number): void {
         throw new Error("Function not implemented.");
     },
-    updateTask: function (taskId: number): void {
+    updateTask: function (taskId: number, updatedTask: Task): Promise<boolean> {
         throw new Error("Function not implemented.");
     },
     markTaskCompleted: function (taskId: number): void {
