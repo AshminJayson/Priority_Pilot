@@ -41,7 +41,7 @@ export function TaskLine({ task, index }: { task: Task; index: number }) {
     return (
         <Flex align="center" justify="space-between" marginY=".5rem">
             {task.isComplete == "true" ? (
-                <Text flex={1} cursor="pointer" onClick={onOpen} as="s">
+                <Text flex={1} as="s">
                     {task.title}
                 </Text>
             ) : (
