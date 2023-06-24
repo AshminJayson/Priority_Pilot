@@ -64,7 +64,9 @@ export function UpdateTaskModalBody({ task }: { task: Task }) {
                 ></Textarea>
                 <Input
                     required
-                    defaultValue={task.dueDate.toLocaleString()}
+                    defaultValue={
+                        task.dueDate ? task.dueDate.toLocaleString() : undefined
+                    }
                     name="dueDate"
                     placeholder="Select Date and Time"
                     type="datetime-local"

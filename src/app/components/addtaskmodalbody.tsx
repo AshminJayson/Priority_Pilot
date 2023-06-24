@@ -15,8 +15,6 @@ export function AddTaskModalBody() {
     const [newTask, setNewTask] = useState<Task>({
         taskId: Date.now() + Math.random(),
         title: "",
-        description: "",
-        dueDate: new Date(),
         importance: 0,
         urgency: 0,
         isComplete: "false",
@@ -69,7 +67,6 @@ export function AddTaskModalBody() {
                     placeholder="Description"
                 ></Textarea>
                 <Input
-                    required
                     name="dueDate"
                     placeholder="Select Date and Time"
                     type="datetime-local"
