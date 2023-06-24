@@ -1,17 +1,17 @@
-import { useContext, useEffect, useState } from "react";
+import {
+    DocumentData,
+    addDoc,
+    collection,
+    deleteDoc,
+    getDocs,
+    query,
+    updateDoc,
+    where,
+} from "firebase/firestore";
+import { useContext, useState } from "react";
 import { TasksContext } from "../contexts";
 import { firestore } from "../dependencies";
 import { useAuth } from "./authprovider";
-import {
-    getDocs,
-    collection,
-    addDoc,
-    DocumentData,
-    where,
-    query,
-    deleteDoc,
-    updateDoc,
-} from "firebase/firestore";
 
 export function TasksProvider({ children }: { children: React.ReactNode }) {
     const [tasks, setTasks] = useState<Task[]>([]);

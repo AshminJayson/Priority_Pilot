@@ -1,12 +1,10 @@
 import {
-    Button,
     Flex,
     IconButton,
     Modal,
     ModalBody,
     ModalCloseButton,
     ModalContent,
-    ModalFooter,
     ModalHeader,
     ModalOverlay,
     Text,
