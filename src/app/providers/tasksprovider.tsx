@@ -22,6 +22,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
         if (!user) return Promise.resolve(false);
 
         const userCollection = collection(firestore, user.uid);
+        newTask.taskId = Date.now() + Math.random();
         const docRef = await addDoc(userCollection, newTask);
         setTasks((tasks: Task[]) => [...tasks, newTask]);
         return Promise.resolve(true);
