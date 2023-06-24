@@ -31,9 +31,19 @@ export function UpdateTaskModalBody({ task }: { task: Task }) {
     const updateSelectTask = (event: React.FormEvent<HTMLFormElement>) => {
         setLoading(true);
         event.preventDefault();
-        updateTask(task.taskId, currTask).finally(() => {
-            setLoading(false);
-        });
+        updateTask(task.taskId, currTask)
+            .then((res) => {
+                if (res) {
+                    toast({
+                        status: "success",
+                        title: "Task updated",
+                        duration: 1000,
+                    });
+                }
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     };
 
     return (
